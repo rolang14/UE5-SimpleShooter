@@ -10,8 +10,8 @@ UCLASS()
 class SIMPLESHOOTER_API ASSGunBase : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ASSGunBase();
 
@@ -29,7 +29,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	virtual void Tick(float DeltaTime) override;
 
 	void PullTrigger();

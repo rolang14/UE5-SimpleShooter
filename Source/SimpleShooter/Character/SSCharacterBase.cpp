@@ -3,7 +3,6 @@
 
 #include "Character/SSCharacterBase.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 
 #include "Gun/SSGunBase.h"
 
@@ -73,29 +72,6 @@ void ASSCharacterBase::BeginPlay()
 	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket"));
 
 	FireRate = 60 / Gun->GetFireRate();
-
-	// 시작 모션
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && StageStartMontage)
-	{
-		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-		AnimInstance->Montage_Play(StageStartMontage);
-
-		// 몽타주 종료 콜백 델리게이트
-		FOnMontageEnded LevelStartEndDelegate;
-		LevelStartEndDelegate.BindUObject(this, &ASSCharacterBase::LevelStartEnded);
-		AnimInstance->Montage_SetEndDelegate(LevelStartEndDelegate, StageStartMontage);
-	}
-	if (StageStartSound)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Stage Start Sound !!"));
-		UGameplayStatics::PlaySoundAtLocation(this, StageStartSound, GetActorLocation());
-	}
-}
-
-void ASSCharacterBase::LevelStartEnded(UAnimMontage* TargetMontage, bool IsProperlyEnded)
-{
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
 void ASSCharacterBase::ProcessPawnDead()

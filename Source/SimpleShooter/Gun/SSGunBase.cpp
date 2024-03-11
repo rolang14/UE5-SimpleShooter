@@ -2,6 +2,7 @@
 
 
 #include "Gun/SSGunBase.h"
+#include "Character/SSCharacterBase.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/DamageEvents.h"
 #include "Kismet/GameplayStatics.h"
@@ -40,6 +41,7 @@ void ASSGunBase::Tick(float DeltaTime)
 
 void ASSGunBase::PullTrigger()
 {
+	// 격발 불가 판정들
 	if (bIsReloading) return;
 
 	if (CurrentAmmo <= 0)
@@ -89,9 +91,22 @@ void ASSGunBase::Reload()
 		bIsReloading = true;
 		UE_LOG(LogTemp, Display, TEXT("Reloading ..."));
 
+		// 재장전 SFX
 		if (ReloadSound)
 		{
 			UGameplayStatics::SpawnSoundAttached(ReloadSound, GunMesh, TEXT("MuzzleFlashSocket"));
+		}
+
+		// 재장전 모션
+		if (ASSCharacterBase* OwnerCharacter = Cast<ASSCharacterBase>(GetOwner()))
+		{
+			UAnimInstance* AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
+			UAnimMontage* const ReloadMontage = OwnerCharacter->GetReloadMontage();
+
+			if (AnimInstance && ReloadMontage)
+			{
+				AnimInstance->Montage_Play(ReloadMontage);
+			}
 		}
 
 		GetWorld()->GetTimerManager().SetTimer(ReloadTimerHandle, this, &ASSGunBase::ReloadGun, ReloadTime, false);
@@ -154,6 +169,18 @@ void ASSGunBase::PerformShotEffects(AController* const InPlayerController) const
 	if (ShotCameraShake)
 	{
 		PlayerController->ClientStartCameraShake(ShotCameraShake);
+	}
+
+	// 격발 모션
+	if (ASSCharacterBase* OwnerCharacter = Cast<ASSCharacterBase>(GetOwner()))
+	{
+		UAnimInstance* AnimInstance = OwnerCharacter->GetMesh()->GetAnimInstance();
+		UAnimMontage* const FireMontage = OwnerCharacter->GetFireMontage();
+
+		if (AnimInstance && FireMontage)
+		{
+			AnimInstance->Montage_Play(FireMontage);
+		}
 	}
 	
 	// 총기 반동

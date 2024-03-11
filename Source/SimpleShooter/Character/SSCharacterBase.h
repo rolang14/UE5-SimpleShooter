@@ -29,31 +29,39 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetDead(const bool InIsDead) { bIsDead = InIsDead; }
 
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE UAnimMontage* const GetReloadMontage() const { return ReloadMontage; }
+
+	UFUNCTION(BlueprintPure)
+	FORCEINLINE UAnimMontage* const GetFireMontage() const { return FireMontage; }
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 private:
+	// 폰 사망 시 프로세스 진행
 	void ProcessPawnDead();
 
-	void LevelStartEnded(UAnimMontage* TargetMontage, bool IsProperlyEnded);
-
 private:
-	// 스테이지 시작 몽타주
-	UPROPERTY(EditDefaultsOnly, Category = "Character Motion")
-	TObjectPtr<class UAnimMontage> StageStartMontage;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Voice")
-	TObjectPtr<class USoundBase> StageStartSound;
-
+	// 총에 관한 것은 모두 해당 클래스에서 관리함.
 	UPROPERTY(EditDefaultsOnly, Category = "Gun Equipment")
 	TSubclassOf<class ASSGunBase> GunClass;
 
 	UPROPERTY(BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class ASSGunBase> Gun;
 
+	// 사망 사운드
 	UPROPERTY(EditDefaultsOnly, Category = "Voice")
 	TObjectPtr<class USoundBase> DeathSound;
+
+	// 캐릭터 별 재장전 모션
+	UPROPERTY(EditDefaultsOnly, Category = "Reload Motion")
+	UAnimMontage* ReloadMontage;
+
+	// 캐릭터 별 총기 발사 모션
+	UPROPERTY(EditDefaultsOnly, Category = "Fire Motion")
+	UAnimMontage* FireMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Character Stat")
 	float MaxHp = 100.f;

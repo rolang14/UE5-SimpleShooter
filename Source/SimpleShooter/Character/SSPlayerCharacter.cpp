@@ -2,6 +2,8 @@
 
 
 #include "Character/SSPlayerCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "InputActionValue.h"
 
 // Sets default values
@@ -15,6 +17,30 @@ ASSPlayerCharacter::ASSPlayerCharacter()
 void ASSPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// 시작 모션
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && StageStartMontage)
+	{
+		GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+		AnimInstance->Montage_Play(StageStartMontage);
+
+		// 몽타주 종료 콜백 델리게이트
+		FOnMontageEnded LevelStartEndDelegate;
+		LevelStartEndDelegate.BindUObject(this, &ASSPlayerCharacter::LevelStartEnded);
+		AnimInstance->Montage_SetEndDelegate(LevelStartEndDelegate, StageStartMontage);
+	}
+	if (StageStartSound)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Stage Start Sound !!"));
+		UGameplayStatics::PlaySoundAtLocation(this, StageStartSound, GetActorLocation());
+	}
+}
+
+void ASSPlayerCharacter::LevelStartEnded(UAnimMontage* TargetMontage, bool IsProperlyEnded)
+{
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	CannotFire = false;
 }
 
 // Called every frame
@@ -59,5 +85,12 @@ void ASSPlayerCharacter::Jump()
 void ASSPlayerCharacter::StopJumping()
 {
 	Super::StopJumping();
+}
+
+void ASSPlayerCharacter::Fire()
+{
+	if (CannotFire) return;
+
+	Super::Fire();
 }
 

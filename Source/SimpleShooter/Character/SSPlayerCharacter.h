@@ -30,13 +30,28 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
+	// 스테이지 시작 몽타주
+	UPROPERTY(EditDefaultsOnly, Category = "Character Motion")
+	TObjectPtr<class UAnimMontage> StageStartMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Voice")
+	TObjectPtr<class USoundBase> StageStartSound;
+
 	UPROPERTY(EditAnywhere, Category = "Character Movement Stat")
 	float LookSpeed;
 
 private:
+	void LevelStartEnded(UAnimMontage* TargetMontage, bool IsProperlyEnded);
+
 	virtual void Move(const struct FInputActionValue& InputValue) override;
 	virtual void Look(const struct FInputActionValue& InputValue) override;
 	virtual void LookController(const struct FInputActionValue& InputValue) override;
 	virtual void Jump() override;
 	virtual void StopJumping() override;
+
+	virtual void Fire() override;
+
+private:
+	// 스테이지 시작 시 몽타주 종료 시점까지는 사격이 불가능하도록 수정
+	bool CannotFire = true;
 };
